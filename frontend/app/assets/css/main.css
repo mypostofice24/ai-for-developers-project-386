@@ -419,7 +419,7 @@ textarea {
   gap: 10px;
   max-height: 380px;
   overflow: auto;
-  padding-right: 4px;
+  padding: 2px 4px 2px 0;
 }
 
 .slot-button {
@@ -445,7 +445,7 @@ textarea {
 }
 
 .slot-button:hover {
-  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 107, 26, 0.12);
 }
 
 .status-dot {
