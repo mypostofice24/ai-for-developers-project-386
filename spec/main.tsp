@@ -6,7 +6,7 @@ using Http;
 @service(#{
   title: "Calendar Booking API",
 })
-@server("http://localhost:3000", "Локальный сервер разработки")
+@server("http://localhost:3001", "Локальный API сервер разработки")
 @doc("""
 Design First контракт для простого приложения бронирования календаря.
 
@@ -50,6 +50,7 @@ model EventType {
 
   @doc("Длительность встречи в минутах. Это значение также определяет шаг генерируемых слотов.")
   @minValue(1)
+  @maxValue(540)
   durationMinutes: int32;
 }
 
@@ -63,6 +64,7 @@ model CreateEventTypeRequest {
 
   @doc("Длительность встречи в минутах. Это значение также определяет шаг генерируемых слотов.")
   @minValue(1)
+  @maxValue(540)
   durationMinutes: int32;
 }
 

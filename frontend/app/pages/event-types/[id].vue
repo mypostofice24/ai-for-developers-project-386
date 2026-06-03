@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DateValue } from '@internationalized/date'
-import { getLocalTimeZone, today } from '@internationalized/date'
+import { today } from '@internationalized/date'
 import type { Booking, Slot } from '~/types/api'
 
 const route = useRoute()
@@ -26,7 +26,7 @@ const {
 
 const eventType = computed(() => eventTypes.value.find((item) => item.id === eventTypeId))
 const apiError = computed(() => eventTypesError.value || slotsError.value)
-const minCalendarDate = today(getLocalTimeZone())
+const minCalendarDate = today(APP_TIME_ZONE)
 const maxCalendarDate = minCalendarDate.add({ days: 13 })
 const selectedDate = shallowRef<DateValue>()
 const selectedSlot = ref<Slot | null>(null)
@@ -121,6 +121,7 @@ const submitBooking = async () => {
       guestName: form.guestName.trim(),
       guestEmail: form.guestEmail.trim(),
     })
+    await refreshSlots()
   } catch (error) {
     submitError.value = getApiErrorMessage(error)
   } finally {

@@ -1,20 +1,25 @@
 import { CalendarDate, type DateValue } from '@internationalized/date'
 
+export const APP_TIME_ZONE = 'Asia/Yekaterinburg'
+
 const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
   day: 'numeric',
   month: 'long',
+  timeZone: APP_TIME_ZONE,
   year: 'numeric',
 })
 
 const shortDateFormatter = new Intl.DateTimeFormat('ru-RU', {
-  weekday: 'long',
   day: 'numeric',
   month: 'long',
+  timeZone: APP_TIME_ZONE,
+  weekday: 'long',
 })
 
 const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
   hour: '2-digit',
   minute: '2-digit',
+  timeZone: APP_TIME_ZONE,
 })
 
 export function formatDateTime(value: string) {
@@ -37,9 +42,15 @@ export function formatTime(value: string) {
 
 export function getDateKey(value: string | Date) {
   const date = typeof value === 'string' ? new Date(value) : value
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const parts = new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: APP_TIME_ZONE,
+    year: 'numeric',
+  }).formatToParts(date)
+  const year = parts.find((part) => part.type === 'year')?.value || '0000'
+  const month = parts.find((part) => part.type === 'month')?.value || '01'
+  const day = parts.find((part) => part.type === 'day')?.value || '01'
 
   return `${year}-${month}-${day}`
 }
