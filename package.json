@@ -2,12 +2,18 @@
   "name": "calendar-booking-contract",
   "private": true,
   "scripts": {
-    "compile:spec": "tsp compile spec"
+    "compile:spec": "tsp compile spec",
+    "generate:web-types": "openapi-typescript dist/openapi/openapi.yaml -o frontend/app/types/api.generated.ts",
+    "mock:api": "prism mock dist/openapi/openapi.yaml --host 0.0.0.0 --port ${MOCK_API_PORT:-3001}",
+    "dev:web": "npm --prefix frontend run dev"
   },
   "dependencies": {
     "@typespec/compiler": "*",
     "@typespec/http": "*",
     "@typespec/openapi3": "*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@stoplight/prism-cli": "*",
+    "openapi-typescript": "*"
+  }
 }

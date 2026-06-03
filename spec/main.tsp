@@ -150,6 +150,61 @@ model ConflictError {
   message: string;
 }
 
+const shortEventType: EventType = #{
+  id: "evt-15",
+  title: "Встреча 15 минут",
+  description: "Короткий тип события для быстрого слота.",
+  durationMinutes: 15,
+};
+
+const baseEventType: EventType = #{
+  id: "evt-30",
+  title: "Встреча 30 минут",
+  description: "Базовый тип события для бронирования.",
+  durationMinutes: 30,
+};
+
+const firstSlot: Slot = #{
+  eventTypeId: "evt-15",
+  startAt: utcDateTime.fromISO("2026-06-04T09:45:00Z"),
+  endAt: utcDateTime.fromISO("2026-06-04T10:00:00Z"),
+  durationMinutes: 15,
+};
+
+const secondSlot: Slot = #{
+  eventTypeId: "evt-15",
+  startAt: utcDateTime.fromISO("2026-06-04T10:00:00Z"),
+  endAt: utcDateTime.fromISO("2026-06-04T10:15:00Z"),
+  durationMinutes: 15,
+};
+
+const thirdSlot: Slot = #{
+  eventTypeId: "evt-15",
+  startAt: utcDateTime.fromISO("2026-06-05T11:15:00Z"),
+  endAt: utcDateTime.fromISO("2026-06-05T11:30:00Z"),
+  durationMinutes: 15,
+};
+
+const firstBooking: Booking = #{
+  id: "book-1",
+  eventType: shortEventType,
+  guestName: "Иван Петров",
+  guestEmail: "ivan@example.com",
+  startAt: utcDateTime.fromISO("2026-06-04T09:00:00Z"),
+  endAt: utcDateTime.fromISO("2026-06-04T09:15:00Z"),
+  createdAt: utcDateTime.fromISO("2026-06-03T08:30:00Z"),
+};
+
+const secondBooking: Booking = #{
+  id: "book-2",
+  eventType: baseEventType,
+  guestName: "Мария Смирнова",
+  guestEmail: "maria@example.com",
+  startAt: utcDateTime.fromISO("2026-06-05T12:00:00Z"),
+  endAt: utcDateTime.fromISO("2026-06-05T12:30:00Z"),
+  createdAt: utcDateTime.fromISO("2026-06-03T09:10:00Z"),
+};
+
 model EventTypesOkResponse {
   @statusCode statusCode: 200;
   @body eventTypes: EventType[];
@@ -204,10 +259,31 @@ alias SlotListResponse = SlotsOkResponse | NotFoundResponse | ValidationErrorRes
 @route("/admin/event-types")
 interface AdminEventTypes {
   @doc("Вернуть типы событий, видимые владельцу в админской части.")
+  @opExample(#{
+    returnType: #{ statusCode: 200, eventTypes: #[shortEventType, baseEventType] },
+  })
   @get
   list(): EventTypeListResponse;
 
   @doc("Создать тип события. Редактирование и удаление типов событий не входят в этот контракт.")
+  @opExample(#{
+    parameters: #{
+      request: #{
+        title: "Встреча 45 минут",
+        description: "Расширенный слот для подробного разговора.",
+        durationMinutes: 45,
+      },
+    },
+    returnType: #{
+      statusCode: 201,
+      eventType: #{
+        id: "evt-45",
+        title: "Встреча 45 минут",
+        description: "Расширенный слот для подробного разговора.",
+        durationMinutes: 45,
+      },
+    },
+  })
   @post
   create(@body request: CreateEventTypeRequest): EventTypeCreateResponse;
 }
@@ -216,6 +292,9 @@ interface AdminEventTypes {
 @route("/admin/bookings")
 interface AdminBookings {
   @doc("Вернуть предстоящие бронирования по всем типам событий, отсортированные по startAt по возрастанию.")
+  @opExample(#{
+    returnType: #{ statusCode: 200, bookings: #[firstBooking, secondBooking] },
+  })
   @get
   listUpcoming(): BookingListResponse;
 }
@@ -224,6 +303,9 @@ interface AdminBookings {
 @route("/event-types")
 interface PublicEventTypes {
   @doc("Вернуть типы событий, доступные гостям.")
+  @opExample(#{
+    returnType: #{ statusCode: 200, eventTypes: #[shortEventType, baseEventType] },
+  })
   @get
   list(): EventTypeListResponse;
 }
@@ -239,6 +321,10 @@ interface PublicSlots {
   длительности типа события. Уже забронированные интервалы исключаются по всем
   типам событий.
   """)
+  @opExample(#{
+    parameters: #{ eventTypeId: "evt-15" },
+    returnType: #{ statusCode: 200, slots: #[firstSlot, secondSlot, thirdSlot] },
+  })
   @get
   list(@path eventTypeId: string): SlotListResponse;
 }
@@ -255,6 +341,28 @@ interface PublicBookings {
   Возвращает 422, если слот находится вне 14-дневного окна, вне доступности
   09:00-18:00 или не совпадает с шагом сетки для типа события.
   """)
+  @opExample(#{
+    parameters: #{
+      request: #{
+        eventTypeId: "evt-15",
+        startAt: utcDateTime.fromISO("2026-06-04T09:45:00Z"),
+        guestName: "Алексей Иванов",
+        guestEmail: "alexey@example.com",
+      },
+    },
+    returnType: #{
+      statusCode: 201,
+      booking: #{
+        id: "book-3",
+        eventType: shortEventType,
+        guestName: "Алексей Иванов",
+        guestEmail: "alexey@example.com",
+        startAt: utcDateTime.fromISO("2026-06-04T09:45:00Z"),
+        endAt: utcDateTime.fromISO("2026-06-04T10:00:00Z"),
+        createdAt: utcDateTime.fromISO("2026-06-03T10:00:00Z"),
+      },
+    },
+  })
   @post
   create(@body request: CreateBookingRequest): BookingCreateResponse;
 }
