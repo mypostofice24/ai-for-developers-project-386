@@ -1,0 +1,13 @@
+{
+  "name": "calendar-booking-contract",
+  "private": true,
+  "scripts": {
+    "compile:spec": "tsp compile spec"
+  },
+  "dependencies": {
+    "@typespec/compiler": "*",
+    "@typespec/http": "*",
+    "@typespec/openapi3": "*"
+  },
+  "devDependencies": {}
+}
